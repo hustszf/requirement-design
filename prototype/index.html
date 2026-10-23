@@ -1,0 +1,1580 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CCOC 自动化运营包配置</title>
+    <style>
+        :root {
+            --primary: #4f6ef7;
+            --primary-light: #eef1fe;
+            --primary-dark: #3a56d4;
+            --success: #52c41a;
+            --warning: #faad14;
+            --danger: #ff4d4f;
+            --text: #1f2937;
+            --text-secondary: #6b7280;
+            --border: #e5e7eb;
+            --bg: #f9fafb;
+            --white: #ffffff;
+            --shadow: 0 1px 3px rgba(0,0,0,0.1);
+            --shadow-lg: 0 4px 12px rgba(0,0,0,0.1);
+            --radius: 8px;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+        }
+
+        .app-header {
+            background: linear-gradient(135deg, var(--primary) 0%, #6366f1 100%);
+            color: white;
+            padding: 20px 32px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: var(--shadow-lg);
+        }
+
+        .app-header h1 { font-size: 20px; font-weight: 600; }
+        .app-header .subtitle { font-size: 13px; opacity: 0.8; margin-top: 2px; }
+
+        .header-actions { display: flex; gap: 12px; }
+        .header-actions button {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: 1px solid rgba(255,255,255,0.3);
+            padding: 8px 16px;
+            border-radius: var(--radius);
+            cursor: pointer;
+            font-size: 13px;
+            transition: all 0.2s;
+        }
+        .header-actions button:hover { background: rgba(255,255,255,0.3); }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 24px;
+        }
+
+        /* Stepper */
+        .stepper {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 24px 0 32px;
+            gap: 0;
+        }
+
+        .step-item {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+        }
+
+        .step-circle {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: 600;
+            border: 2px solid var(--border);
+            background: var(--white);
+            color: var(--text-secondary);
+            transition: all 0.3s;
+        }
+
+        .step-item.active .step-circle {
+            border-color: var(--primary);
+            background: var(--primary);
+            color: white;
+        }
+
+        .step-item.completed .step-circle {
+            border-color: var(--success);
+            background: var(--success);
+            color: white;
+        }
+
+        .step-label {
+            margin-left: 8px;
+            font-size: 13px;
+            color: var(--text-secondary);
+            white-space: nowrap;
+        }
+
+        .step-item.active .step-label { color: var(--primary); font-weight: 600; }
+        .step-item.completed .step-label { color: var(--success); }
+
+        .step-line {
+            width: 48px;
+            height: 2px;
+            background: var(--border);
+            margin: 0 8px;
+            transition: background 0.3s;
+        }
+
+        .step-line.completed { background: var(--success); }
+
+        /* Card */
+        .card {
+            background: var(--white);
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+            padding: 28px;
+            margin-bottom: 20px;
+            border: 1px solid var(--border);
+        }
+
+        .card-title {
+            font-size: 17px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .card-title .icon {
+            width: 28px;
+            height: 28px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+        }
+
+        /* Form */
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text);
+            margin-bottom: 6px;
+        }
+
+        .form-label .required {
+            color: var(--danger);
+            margin-left: 2px;
+        }
+
+        .form-label .hint {
+            color: var(--text-secondary);
+            font-weight: 400;
+            margin-left: 8px;
+            font-size: 12px;
+        }
+
+        input[type="text"],
+        input[type="number"],
+        input[type="date"],
+        input[type="time"],
+        select,
+        textarea {
+            width: 100%;
+            padding: 9px 12px;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            font-size: 14px;
+            color: var(--text);
+            background: var(--white);
+            transition: border-color 0.2s, box-shadow 0.2s;
+            outline: none;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px var(--primary-light);
+        }
+
+        textarea { resize: vertical; min-height: 72px; }
+
+        /* Buttons */
+        .btn {
+            padding: 9px 20px;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            border: 1px solid transparent;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+        .btn-primary:hover { background: var(--primary-dark); }
+
+        .btn-outline {
+            background: var(--white);
+            color: var(--text);
+            border-color: var(--border);
+        }
+        .btn-outline:hover { border-color: var(--primary); color: var(--primary); }
+
+        .btn-success {
+            background: var(--success);
+            color: white;
+        }
+        .btn-success:hover { background: #45a815; }
+
+        .btn-danger {
+            background: transparent;
+            color: var(--danger);
+            border-color: var(--danger);
+            padding: 6px 12px;
+            font-size: 13px;
+        }
+        .btn-danger:hover { background: #fff1f0; }
+
+        .btn-sm {
+            padding: 5px 12px;
+            font-size: 13px;
+        }
+
+        .btn-group {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 24px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border);
+        }
+
+        /* Filter Rules */
+        .rule-group {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 16px;
+            margin-bottom: 12px;
+        }
+
+        .rule-row {
+            display: grid;
+            grid-template-columns: 140px 160px 140px 1fr 40px;
+            gap: 10px;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .rule-row:last-child { margin-bottom: 0; }
+
+        .rule-logic {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            margin-bottom: 12px;
+        }
+
+        .logic-btn {
+            padding: 4px 14px;
+            border: 1px solid var(--border);
+            background: var(--white);
+            border-radius: 4px;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .logic-btn.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        .delete-btn {
+            width: 32px;
+            height: 32px;
+            border: none;
+            background: transparent;
+            color: var(--text-secondary);
+            cursor: pointer;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            transition: all 0.2s;
+        }
+
+        .delete-btn:hover { background: #fff1f0; color: var(--danger); }
+
+        .add-rule-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            color: var(--primary);
+            background: transparent;
+            border: 1px dashed var(--primary);
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 13px;
+            margin-top: 8px;
+            transition: all 0.2s;
+        }
+
+        .add-rule-btn:hover { background: var(--primary-light); }
+
+        /* Channel Cards */
+        .channel-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .channel-card {
+            border: 2px solid var(--border);
+            border-radius: var(--radius);
+            padding: 16px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .channel-card:hover { border-color: var(--primary); }
+
+        .channel-card.selected {
+            border-color: var(--primary);
+            background: var(--primary-light);
+        }
+
+        .channel-icon {
+            font-size: 28px;
+            margin-bottom: 8px;
+        }
+
+        .channel-name {
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .channel-desc {
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-top: 4px;
+        }
+
+        /* Switch */
+        .switch-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .switch {
+            position: relative;
+            width: 44px;
+            height: 24px;
+            cursor: pointer;
+        }
+
+        .switch input { display: none; }
+
+        .switch .slider {
+            position: absolute;
+            inset: 0;
+            background: #d1d5db;
+            border-radius: 12px;
+            transition: background 0.3s;
+        }
+
+        .switch .slider::before {
+            content: '';
+            position: absolute;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: white;
+            top: 3px;
+            left: 3px;
+            transition: transform 0.3s;
+        }
+
+        .switch input:checked + .slider {
+            background: var(--primary);
+        }
+
+        .switch input:checked + .slider::before {
+            transform: translateX(20px);
+        }
+
+        .switch-label { font-size: 14px; }
+
+        /* Template Cards */
+        .template-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+        }
+
+        .template-card {
+            border: 2px solid var(--border);
+            border-radius: var(--radius);
+            padding: 14px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .template-card:hover { border-color: var(--primary); }
+
+        .template-card.selected {
+            border-color: var(--primary);
+            background: var(--primary-light);
+        }
+
+        .template-name {
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 4px;
+        }
+
+        .template-preview {
+            font-size: 12px;
+            color: var(--text-secondary);
+            line-height: 1.5;
+        }
+
+        .template-tag {
+            display: inline-block;
+            padding: 2px 8px;
+            background: var(--primary-light);
+            color: var(--primary);
+            border-radius: 4px;
+            font-size: 11px;
+            margin-top: 6px;
+        }
+
+        /* Preview */
+        .preview-section {
+            margin-bottom: 20px;
+        }
+
+        .preview-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text);
+            margin-bottom: 10px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .preview-item {
+            display: flex;
+            padding: 8px 0;
+            font-size: 13px;
+        }
+
+        .preview-label {
+            width: 120px;
+            color: var(--text-secondary);
+            flex-shrink: 0;
+        }
+
+        .preview-value {
+            color: var(--text);
+            font-weight: 500;
+        }
+
+        .json-preview {
+            background: #1e293b;
+            color: #e2e8f0;
+            border-radius: var(--radius);
+            padding: 16px;
+            font-family: 'Fira Code', 'Consolas', monospace;
+            font-size: 12px;
+            line-height: 1.6;
+            overflow-x: auto;
+            white-space: pre-wrap;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        /* Tags */
+        .tag {
+            display: inline-flex;
+            align-items: center;
+            padding: 3px 10px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .tag-blue { background: #e0e7ff; color: #3730a3; }
+        .tag-green { background: #dcfce7; color: #166534; }
+        .tag-orange { background: #fff7ed; color: #9a3412; }
+
+        /* Ticket scene cards */
+        .scene-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+        }
+
+        .scene-card {
+            border: 2px solid var(--border);
+            border-radius: var(--radius);
+            padding: 14px;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: center;
+        }
+
+        .scene-card:hover { border-color: var(--primary); }
+        .scene-card.selected {
+            border-color: var(--primary);
+            background: var(--primary-light);
+        }
+
+        .scene-icon { font-size: 24px; margin-bottom: 6px; }
+        .scene-name { font-size: 13px; font-weight: 500; }
+
+        /* Hidden panels */
+        .step-panel { display: none; }
+        .step-panel.active { display: block; }
+
+        /* Ticket detail (conditional) */
+        .ticket-detail { display: none; margin-top: 20px; }
+        .ticket-detail.show { display: block; }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .form-row { grid-template-columns: 1fr; }
+            .channel-grid { grid-template-columns: repeat(2, 1fr); }
+            .template-grid { grid-template-columns: 1fr; }
+            .rule-row { grid-template-columns: 1fr; }
+            .scene-grid { grid-template-columns: repeat(2, 1fr); }
+            .stepper { flex-wrap: wrap; gap: 8px; }
+            .step-line { display: none; }
+        }
+
+        /* Toast */
+        .toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: var(--text);
+            color: white;
+            padding: 12px 20px;
+            border-radius: var(--radius);
+            font-size: 14px;
+            z-index: 9999;
+            opacity: 0;
+            transform: translateY(-10px);
+            transition: all 0.3s;
+            box-shadow: var(--shadow-lg);
+        }
+
+        .toast.show { opacity: 1; transform: translateY(0); }
+        .toast.success { background: var(--success); }
+
+        /* Config list (landing) */
+        .config-list-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .config-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .config-table th {
+            background: var(--bg);
+            padding: 12px 16px;
+            text-align: left;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .config-table td {
+            padding: 14px 16px;
+            font-size: 13px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .status-badge.enabled { background: #dcfce7; color: #166534; }
+        .status-badge.disabled { background: #f3f4f6; color: #6b7280; }
+
+        .status-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+        }
+
+        .status-dot.green { background: var(--success); }
+        .status-dot.gray { background: #9ca3af; }
+
+        .table-actions { display: flex; gap: 8px; }
+        .table-actions button {
+            padding: 4px 10px;
+            font-size: 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            border: 1px solid var(--border);
+            background: var(--white);
+            color: var(--text);
+            transition: all 0.2s;
+        }
+        .table-actions button:hover { border-color: var(--primary); color: var(--primary); }
+        .table-actions button.del:hover { border-color: var(--danger); color: var(--danger); }
+
+        /* Stats bar */
+        .stats-bar {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .stat-card {
+            background: var(--white);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 16px;
+            box-shadow: var(--shadow);
+        }
+
+        .stat-value {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--text);
+        }
+
+        .stat-label {
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin-top: 4px;
+        }
+
+        .stat-card:nth-child(1) .stat-value { color: var(--primary); }
+        .stat-card:nth-child(2) .stat-value { color: var(--success); }
+        .stat-card:nth-child(3) .stat-value { color: var(--warning); }
+        .stat-card:nth-child(4) .stat-value { color: var(--danger); }
+    </style>
+</head>
+<body>
+
+<div class="app-header">
+    <div>
+        <h1>CCOC 自动化运营包配置系统</h1>
+        <div class="subtitle">用户运营 · 自动化配置管理</div>
+    </div>
+    <div class="header-actions">
+        <button onclick="showList()">配置列表</button>
+        <button onclick="showCreate()">+ 新建配置</button>
+    </div>
+</div>
+
+<!-- List View -->
+<div class="container" id="listView">
+    <div class="stats-bar">
+        <div class="stat-card">
+            <div class="stat-value">12</div>
+            <div class="stat-label">配置总数</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value">8</div>
+            <div class="stat-label">运行中</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value">23,847</div>
+            <div class="stat-label">今日触达量</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value">92.3%</div>
+            <div class="stat-label">触达成功率</div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="config-list-header">
+            <div class="card-title" style="margin-bottom:0">配置列表</div>
+            <button class="btn btn-primary" onclick="showCreate()">+ 新建配置</button>
+        </div>
+        <table class="config-table">
+            <thead>
+                <tr>
+                    <th>配置名称</th>
+                    <th>数据源</th>
+                    <th>触达渠道</th>
+                    <th>生成数量</th>
+                    <th>执行频率</th>
+                    <th>状态</th>
+                    <th>操作</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>权益未使用提醒-外呼</strong><br><span style="font-size:11px;color:#6b7280">权益发放超3天未使用自动外呼</span></td>
+                    <td><span class="tag tag-blue">权益数据</span></td>
+                    <td>智能外呼</td>
+                    <td>1,000</td>
+                    <td>每天 09:00</td>
+                    <td><span class="status-badge enabled"><span class="status-dot green"></span>运行中</span></td>
+                    <td>
+                        <div class="table-actions">
+                            <button>编辑</button>
+                            <button>查看</button>
+                            <button class="del">停用</button>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td><strong>套餐到期续约-短信</strong><br><span style="font-size:11px;color:#6b7280">套餐7天内到期用户短信提醒</span></td>
+                    <td><span class="tag tag-green">用户数据</span></td>
+                    <td>短信</td>
+                    <td>2,000</td>
+                    <td>每天 10:00</td>
+                    <td><span class="status-badge enabled"><span class="status-dot green"></span>运行中</span></td>
+                    <td>
+                        <div class="table-actions">
+                            <button>编辑</button>
+                            <button>查看</button>
+                            <button class="del">停用</button>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td><strong>故障设备回访</strong><br><span style="font-size:11px;color:#6b7280">设备故障修复后24小时回访</span></td>
+                    <td><span class="tag tag-orange">设备数据</span></td>
+                    <td>人工坐席</td>
+                    <td>500</td>
+                    <td>每天 14:00</td>
+                    <td><span class="status-badge disabled"><span class="status-dot gray"></span>已停用</span></td>
+                    <td>
+                        <div class="table-actions">
+                            <button>编辑</button>
+                            <button>查看</button>
+                            <button class="del">删除</button>
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Create/Edit View -->
+<div class="container" id="createView" style="display:none">
+    <!-- Stepper -->
+    <div class="stepper" id="stepper">
+        <div class="step-item active" onclick="goToStep(1)">
+            <div class="step-circle">1</div>
+            <span class="step-label">基础信息</span>
+        </div>
+        <div class="step-line"></div>
+        <div class="step-item" onclick="goToStep(2)">
+            <div class="step-circle">2</div>
+            <span class="step-label">筛选规则</span>
+        </div>
+        <div class="step-line"></div>
+        <div class="step-item" onclick="goToStep(3)">
+            <div class="step-circle">3</div>
+            <span class="step-label">生成设置</span>
+        </div>
+        <div class="step-line"></div>
+        <div class="step-item" onclick="goToStep(4)">
+            <div class="step-circle">4</div>
+            <span class="step-label">触达配置</span>
+        </div>
+        <div class="step-line"></div>
+        <div class="step-item" onclick="goToStep(5)">
+            <div class="step-circle">5</div>
+            <span class="step-label">工单 & 预览</span>
+        </div>
+    </div>
+
+    <!-- Step 1: 基础信息 -->
+    <div class="step-panel active" id="step1">
+        <div class="card">
+            <div class="card-title">
+                <span class="icon" style="background:#e0e7ff;color:#4f46e5;">i</span>
+                基础信息配置
+            </div>
+            <div class="form-group">
+                <label class="form-label">配置名称 <span class="required">*</span></label>
+                <input type="text" id="configName" placeholder="请输入配置名称，如：权益未使用提醒-外呼" value="权益未使用提醒-外呼">
+            </div>
+            <div class="form-group">
+                <label class="form-label">配置描述</label>
+                <textarea id="configDesc" placeholder="请简要描述此运营配置的目的和说明">针对权益发放超过3天但未使用的用户，通过智能外呼进行使用提醒，提升权益使用率。</textarea>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label">生效开始时间 <span class="required">*</span></label>
+                    <input type="date" id="startDate" value="2026-10-23">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">生效结束时间 <span class="required">*</span></label>
+                    <input type="date" id="endDate" value="2026-12-31">
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="form-label">配置状态</label>
+                <div class="switch-wrapper">
+                    <label class="switch">
+                        <input type="checkbox" id="configStatus" checked>
+                        <span class="slider"></span>
+                    </label>
+                    <span class="switch-label" id="statusLabel">启用</span>
+                </div>
+            </div>
+
+            <div class="btn-group">
+                <button class="btn btn-outline" onclick="showList()">取消</button>
+                <button class="btn btn-primary" onclick="nextStep()">下一步 &rarr;</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Step 2: 筛选规则 -->
+    <div class="step-panel" id="step2">
+        <div class="card">
+            <div class="card-title">
+                <span class="icon" style="background:#fef3c7;color:#d97706;">&#9733;</span>
+                数据筛选规则
+            </div>
+            <p style="font-size:13px;color:var(--text-secondary);margin-bottom:16px;">
+                配置运营包数据的筛选条件，系统将根据规则自动筛选符合条件的目标用户。
+            </p>
+
+            <div class="form-group">
+                <label class="form-label">条件关系</label>
+                <div class="rule-logic">
+                    <button class="logic-btn active" onclick="setLogic(this,'AND')">且（AND）</button>
+                    <button class="logic-btn" onclick="setLogic(this,'OR')">或（OR）</button>
+                </div>
+            </div>
+
+            <div id="ruleContainer">
+                <div class="rule-group">
+                    <div class="rule-row">
+                        <select>
+                            <option value="">数据源</option>
+                            <option value="user">用户数据</option>
+                            <option value="device">设备数据</option>
+                            <option value="entitlement" selected>权益数据</option>
+                        </select>
+                        <select>
+                            <option value="">选择字段</option>
+                            <option value="issue_date" selected>发放时间</option>
+                            <option value="usage_status">使用状态</option>
+                            <option value="type">权益类型</option>
+                            <option value="expire_date">到期时间</option>
+                        </select>
+                        <select>
+                            <option value="">运算符</option>
+                            <option value="before_days" selected>距今超过(天)</option>
+                            <option value="equals">等于</option>
+                            <option value="not_equals">不等于</option>
+                            <option value="greater">大于</option>
+                            <option value="less">小于</option>
+                            <option value="contains">包含</option>
+                            <option value="is_empty">为空</option>
+                        </select>
+                        <input type="text" value="3" placeholder="请输入值">
+                        <button class="delete-btn" onclick="removeRule(this)" title="删除此条件">&times;</button>
+                    </div>
+                </div>
+                <div class="rule-group">
+                    <div class="rule-row">
+                        <select>
+                            <option value="">数据源</option>
+                            <option value="user">用户数据</option>
+                            <option value="device">设备数据</option>
+                            <option value="entitlement" selected>权益数据</option>
+                        </select>
+                        <select>
+                            <option value="">选择字段</option>
+                            <option value="issue_date">发放时间</option>
+                            <option value="usage_status" selected>使用状态</option>
+                            <option value="type">权益类型</option>
+                            <option value="expire_date">到期时间</option>
+                        </select>
+                        <select>
+                            <option value="">运算符</option>
+                            <option value="before_days">距今超过(天)</option>
+                            <option value="equals" selected>等于</option>
+                            <option value="not_equals">不等于</option>
+                            <option value="greater">大于</option>
+                            <option value="less">小于</option>
+                            <option value="contains">包含</option>
+                            <option value="is_empty">为空</option>
+                        </select>
+                        <input type="text" value="未使用" placeholder="请输入值">
+                        <button class="delete-btn" onclick="removeRule(this)" title="删除此条件">&times;</button>
+                    </div>
+                </div>
+                <div class="rule-group">
+                    <div class="rule-row">
+                        <select>
+                            <option value="">数据源</option>
+                            <option value="user" selected>用户数据</option>
+                            <option value="device">设备数据</option>
+                            <option value="entitlement">权益数据</option>
+                        </select>
+                        <select>
+                            <option value="">选择字段</option>
+                            <option value="status" selected>用户状态</option>
+                            <option value="level">用户等级</option>
+                            <option value="region">所在地区</option>
+                            <option value="reg_days">注册天数</option>
+                        </select>
+                        <select>
+                            <option value="">运算符</option>
+                            <option value="before_days">距今超过(天)</option>
+                            <option value="equals" selected>等于</option>
+                            <option value="not_equals">不等于</option>
+                            <option value="greater">大于</option>
+                            <option value="less">小于</option>
+                            <option value="contains">包含</option>
+                            <option value="is_empty">为空</option>
+                        </select>
+                        <input type="text" value="正常" placeholder="请输入值">
+                        <button class="delete-btn" onclick="removeRule(this)" title="删除此条件">&times;</button>
+                    </div>
+                </div>
+            </div>
+
+            <button class="add-rule-btn" onclick="addRule()">+ 添加筛选条件</button>
+
+            <div class="btn-group">
+                <button class="btn btn-outline" onclick="prevStep()">&larr; 上一步</button>
+                <button class="btn btn-primary" onclick="nextStep()">下一步 &rarr;</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Step 3: 生成设置 -->
+    <div class="step-panel" id="step3">
+        <div class="card">
+            <div class="card-title">
+                <span class="icon" style="background:#dcfce7;color:#16a34a;">&#9881;</span>
+                运营包生成设置
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label">生成数量上限 <span class="required">*</span> <span class="hint">单次运营包最大记录数</span></label>
+                    <input type="number" id="maxCount" value="1000" min="1" max="100000">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">执行频率 <span class="required">*</span></label>
+                    <select id="execFreq">
+                        <option value="once">一次性执行</option>
+                        <option value="daily" selected>每天</option>
+                        <option value="weekly">每周</option>
+                        <option value="custom">自定义 Cron</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label">执行时间</label>
+                    <input type="time" id="execTime" value="09:00">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">去重策略 <span class="hint">同一用户N天内不重复触达</span></label>
+                    <select id="dedupDays">
+                        <option value="0">不去重</option>
+                        <option value="1">1天内不重复</option>
+                        <option value="3">3天内不重复</option>
+                        <option value="7" selected>7天内不重复</option>
+                        <option value="14">14天内不重复</option>
+                        <option value="30">30天内不重复</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label">配置优先级 <span class="hint">多配置命中同一用户时的优先级</span></label>
+                    <select id="priority">
+                        <option value="1">低</option>
+                        <option value="2" selected>中</option>
+                        <option value="3">高</option>
+                        <option value="4">紧急</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">执行前审核</label>
+                    <div class="switch-wrapper" style="margin-top:6px;">
+                        <label class="switch">
+                            <input type="checkbox" id="needReview" checked>
+                            <span class="slider"></span>
+                        </label>
+                        <span class="switch-label">生成后需人工审核再执行</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="btn-group">
+                <button class="btn btn-outline" onclick="prevStep()">&larr; 上一步</button>
+                <button class="btn btn-primary" onclick="nextStep()">下一步 &rarr;</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Step 4: 触达配置 -->
+    <div class="step-panel" id="step4">
+        <div class="card">
+            <div class="card-title">
+                <span class="icon" style="background:#fce7f3;color:#db2777;">&#9993;</span>
+                触达方式配置
+            </div>
+            <div class="form-group">
+                <label class="form-label">选择触达渠道 <span class="required">*</span></label>
+                <div class="channel-grid">
+                    <div class="channel-card selected" onclick="selectChannel(this, 'ai_call')">
+                        <div class="channel-icon">&#128222;</div>
+                        <div class="channel-name">智能外呼</div>
+                        <div class="channel-desc">AI 自动外呼触达</div>
+                    </div>
+                    <div class="channel-card" onclick="selectChannel(this, 'sms')">
+                        <div class="channel-icon">&#128172;</div>
+                        <div class="channel-name">短信</div>
+                        <div class="channel-desc">短信消息推送</div>
+                    </div>
+                    <div class="channel-card" onclick="selectChannel(this, 'app_push')">
+                        <div class="channel-icon">&#128241;</div>
+                        <div class="channel-name">APP 推送</div>
+                        <div class="channel-desc">应用内消息通知</div>
+                    </div>
+                    <div class="channel-card" onclick="selectChannel(this, 'wechat')">
+                        <div class="channel-icon">&#128276;</div>
+                        <div class="channel-name">微信消息</div>
+                        <div class="channel-desc">公众号/服务号推送</div>
+                    </div>
+                    <div class="channel-card" onclick="selectChannel(this, 'agent')">
+                        <div class="channel-icon">&#128100;</div>
+                        <div class="channel-name">人工坐席</div>
+                        <div class="channel-desc">分配至坐席跟进</div>
+                    </div>
+                    <div class="channel-card" onclick="selectChannel(this, 'email')">
+                        <div class="channel-icon">&#9993;</div>
+                        <div class="channel-name">邮件</div>
+                        <div class="channel-desc">电子邮件触达</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">选择触达模板 <span class="required">*</span></label>
+                <div class="template-grid" id="templateGrid">
+                    <div class="template-card selected" onclick="selectTemplate(this, 'tpl_001')">
+                        <div class="template-name">权益使用提醒话术A</div>
+                        <div class="template-preview">您好，这里是XX客服，注意到您有一项权益还未使用，方便花一分钟了解一下吗？</div>
+                        <span class="template-tag">智能外呼</span>
+                    </div>
+                    <div class="template-card" onclick="selectTemplate(this, 'tpl_002')">
+                        <div class="template-name">权益使用提醒话术B</div>
+                        <div class="template-preview">尊敬的用户您好，您于{日期}获得的{权益名称}即将到期，点击立即使用...</div>
+                        <span class="template-tag">智能外呼</span>
+                    </div>
+                    <div class="template-card" onclick="selectTemplate(this, 'tpl_003')">
+                        <div class="template-name">续约提醒话术</div>
+                        <div class="template-preview">您好，您的{套餐名称}将于{到期时间}到期，续约可享8折优惠...</div>
+                        <span class="template-tag">智能外呼</span>
+                    </div>
+                    <div class="template-card" onclick="selectTemplate(this, 'tpl_004')">
+                        <div class="template-name">回访关怀话术</div>
+                        <div class="template-preview">您好，之前您反馈的问题已处理，想确认一下目前使用是否正常？</div>
+                        <span class="template-tag">智能外呼</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label">触达时段</label>
+                    <div style="display:flex;gap:8px;align-items:center;">
+                        <input type="time" id="reachStart" value="09:00" style="flex:1">
+                        <span>至</span>
+                        <input type="time" id="reachEnd" value="21:00" style="flex:1">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">单用户每日最大触达次数</label>
+                    <input type="number" id="maxDaily" value="1" min="1" max="10">
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label">失败重试次数</label>
+                    <select id="retryCount">
+                        <option value="0">不重试</option>
+                        <option value="1">1次</option>
+                        <option value="2" selected>2次</option>
+                        <option value="3">3次</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">重试间隔（分钟）</label>
+                    <input type="number" id="retryInterval" value="60" min="5" max="1440">
+                </div>
+            </div>
+
+            <div class="btn-group">
+                <button class="btn btn-outline" onclick="prevStep()">&larr; 上一步</button>
+                <button class="btn btn-primary" onclick="nextStep()">下一步 &rarr;</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Step 5: 工单 & 预览 -->
+    <div class="step-panel" id="step5">
+        <div class="card">
+            <div class="card-title">
+                <span class="icon" style="background:#e0e7ff;color:#4f46e5;">&#128203;</span>
+                工单配置
+            </div>
+            <div class="form-group">
+                <label class="form-label">是否创建工单</label>
+                <div class="switch-wrapper">
+                    <label class="switch">
+                        <input type="checkbox" id="createTicket" onchange="toggleTicketDetail()">
+                        <span class="slider"></span>
+                    </label>
+                    <span class="switch-label">触达后自动创建工单跟进</span>
+                </div>
+            </div>
+
+            <div class="ticket-detail" id="ticketDetail">
+                <div class="form-group">
+                    <label class="form-label">工单场景 <span class="required">*</span></label>
+                    <div class="scene-grid">
+                        <div class="scene-card selected" onclick="selectScene(this, 'activate')">
+                            <div class="scene-icon">&#127873;</div>
+                            <div class="scene-name">权益激活提醒</div>
+                        </div>
+                        <div class="scene-card" onclick="selectScene(this, 'renew')">
+                            <div class="scene-icon">&#128260;</div>
+                            <div class="scene-name">套餐续约</div>
+                        </div>
+                        <div class="scene-card" onclick="selectScene(this, 'revisit')">
+                            <div class="scene-icon">&#128222;</div>
+                            <div class="scene-name">故障回访</div>
+                        </div>
+                        <div class="scene-card" onclick="selectScene(this, 'complaint')">
+                            <div class="scene-icon">&#128227;</div>
+                            <div class="scene-name">投诉处理</div>
+                        </div>
+                        <div class="scene-card" onclick="selectScene(this, 'satisfaction')">
+                            <div class="scene-icon">&#11088;</div>
+                            <div class="scene-name">满意度调查</div>
+                        </div>
+                        <div class="scene-card" onclick="selectScene(this, 'custom')">
+                            <div class="scene-icon">&#9998;</div>
+                            <div class="scene-name">自定义场景</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">工单优先级</label>
+                        <select id="ticketPriority">
+                            <option value="1">低</option>
+                            <option value="2" selected>中</option>
+                            <option value="3">高</option>
+                            <option value="4">紧急</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">工单分配规则</label>
+                        <select id="ticketAssign">
+                            <option value="auto" selected>自动分配</option>
+                            <option value="team">指定团队</option>
+                            <option value="person">指定人员</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">工单超时时间（小时）</label>
+                        <input type="number" id="ticketTimeout" value="24" min="1" max="720">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">关联触达记录</label>
+                        <div class="switch-wrapper" style="margin-top:6px;">
+                            <label class="switch">
+                                <input type="checkbox" id="linkRecord" checked>
+                                <span class="slider"></span>
+                            </label>
+                            <span class="switch-label">将触达记录关联至工单</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-title">
+                <span class="icon" style="background:#fef3c7;color:#d97706;">&#128065;</span>
+                配置预览
+            </div>
+            <div id="previewContent"></div>
+            <div style="margin-top:16px;">
+                <label class="form-label">配置 JSON</label>
+                <div class="json-preview" id="jsonPreview"></div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="btn-group" style="border:none;padding-top:0;margin-top:0;">
+                <button class="btn btn-outline" onclick="prevStep()">&larr; 上一步</button>
+                <div style="display:flex;gap:12px;">
+                    <button class="btn btn-outline" onclick="exportJSON()">导出 JSON</button>
+                    <button class="btn btn-success" onclick="saveConfig()">&#10003; 保存配置</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script>
+let currentStep = 1;
+const totalSteps = 5;
+let selectedChannel = 'ai_call';
+let selectedTemplate = 'tpl_001';
+let selectedScene = 'activate';
+let filterLogic = 'AND';
+
+const channelNames = {
+    ai_call: '智能外呼', sms: '短信', app_push: 'APP推送',
+    wechat: '微信消息', agent: '人工坐席', email: '邮件'
+};
+const sceneNames = {
+    activate: '权益激活提醒', renew: '套餐续约', revisit: '故障回访',
+    complaint: '投诉处理', satisfaction: '满意度调查', custom: '自定义场景'
+};
+const templateNames = {
+    tpl_001: '权益使用提醒话术A', tpl_002: '权益使用提醒话术B',
+    tpl_003: '续约提醒话术', tpl_004: '回访关怀话术'
+};
+const freqNames = { once: '一次性', daily: '每天', weekly: '每周', custom: '自定义Cron' };
+const priorityNames = { '1': '低', '2': '中', '3': '高', '4': '紧急' };
+const dedupNames = {
+    '0': '不去重', '1': '1天', '3': '3天',
+    '7': '7天', '14': '14天', '30': '30天'
+};
+
+function showList() {
+    document.getElementById('listView').style.display = '';
+    document.getElementById('createView').style.display = 'none';
+}
+
+function showCreate() {
+    document.getElementById('listView').style.display = 'none';
+    document.getElementById('createView').style.display = '';
+    currentStep = 1;
+    updateStepper();
+    showStep(1);
+}
+
+function goToStep(step) {
+    if (step > currentStep + 1) return;
+    currentStep = step;
+    updateStepper();
+    showStep(step);
+    if (step === 5) renderPreview();
+}
+
+function nextStep() {
+    if (currentStep < totalSteps) {
+        currentStep++;
+        updateStepper();
+        showStep(currentStep);
+        if (currentStep === 5) renderPreview();
+    }
+}
+
+function prevStep() {
+    if (currentStep > 1) {
+        currentStep--;
+        updateStepper();
+        showStep(currentStep);
+    }
+}
+
+function showStep(step) {
+    document.querySelectorAll('.step-panel').forEach(p => p.classList.remove('active'));
+    document.getElementById('step' + step).classList.add('active');
+}
+
+function updateStepper() {
+    const items = document.querySelectorAll('.step-item');
+    const lines = document.querySelectorAll('.step-line');
+    items.forEach((item, i) => {
+        item.classList.remove('active', 'completed');
+        if (i + 1 === currentStep) item.classList.add('active');
+        else if (i + 1 < currentStep) item.classList.add('completed');
+    });
+    lines.forEach((line, i) => {
+        line.classList.toggle('completed', i + 1 < currentStep);
+    });
+}
+
+function setLogic(btn, logic) {
+    filterLogic = logic;
+    document.querySelectorAll('.logic-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+}
+
+function addRule() {
+    const container = document.getElementById('ruleContainer');
+    const group = document.createElement('div');
+    group.className = 'rule-group';
+    group.innerHTML = `
+        <div class="rule-row">
+            <select>
+                <option value="">数据源</option>
+                <option value="user">用户数据</option>
+                <option value="device">设备数据</option>
+                <option value="entitlement">权益数据</option>
+            </select>
+            <select>
+                <option value="">选择字段</option>
+                <option value="status">用户状态</option>
+                <option value="level">用户等级</option>
+                <option value="region">所在地区</option>
+            </select>
+            <select>
+                <option value="">运算符</option>
+                <option value="equals">等于</option>
+                <option value="not_equals">不等于</option>
+                <option value="greater">大于</option>
+                <option value="less">小于</option>
+                <option value="before_days">距今超过(天)</option>
+                <option value="contains">包含</option>
+                <option value="is_empty">为空</option>
+            </select>
+            <input type="text" placeholder="请输入值">
+            <button class="delete-btn" onclick="removeRule(this)" title="删除此条件">&times;</button>
+        </div>
+    `;
+    container.appendChild(group);
+}
+
+function removeRule(btn) {
+    const groups = document.querySelectorAll('#ruleContainer .rule-group');
+    if (groups.length <= 1) {
+        showToast('至少保留一条筛选规则');
+        return;
+    }
+    btn.closest('.rule-group').remove();
+}
+
+function selectChannel(card, channel) {
+    document.querySelectorAll('.channel-card').forEach(c => c.classList.remove('selected'));
+    card.classList.add('selected');
+    selectedChannel = channel;
+}
+
+function selectTemplate(card, tpl) {
+    document.querySelectorAll('.template-card').forEach(c => c.classList.remove('selected'));
+    card.classList.add('selected');
+    selectedTemplate = tpl;
+}
+
+function selectScene(card, scene) {
+    document.querySelectorAll('.scene-card').forEach(c => c.classList.remove('selected'));
+    card.classList.add('selected');
+    selectedScene = scene;
+}
+
+function toggleTicketDetail() {
+    const checked = document.getElementById('createTicket').checked;
+    document.getElementById('ticketDetail').classList.toggle('show', checked);
+}
+
+function collectConfig() {
+    const rules = [];
+    document.querySelectorAll('#ruleContainer .rule-group').forEach(g => {
+        const selects = g.querySelectorAll('select');
+        const input = g.querySelector('input');
+        rules.push({
+            dataSource: selects[0].value,
+            field: selects[1].value,
+            operator: selects[2].value,
+            value: input.value
+        });
+    });
+
+    const config = {
+        basicInfo: {
+            name: document.getElementById('configName').value,
+            description: document.getElementById('configDesc').value,
+            startDate: document.getElementById('startDate').value,
+            endDate: document.getElementById('endDate').value,
+            status: document.getElementById('configStatus').checked ? 'enabled' : 'disabled'
+        },
+        filterRules: {
+            logic: filterLogic,
+            conditions: rules
+        },
+        generateSettings: {
+            maxCount: parseInt(document.getElementById('maxCount').value),
+            execFrequency: document.getElementById('execFreq').value,
+            execTime: document.getElementById('execTime').value,
+            dedupDays: parseInt(document.getElementById('dedupDays').value),
+            priority: parseInt(document.getElementById('priority').value),
+            needReview: document.getElementById('needReview').checked
+        },
+        reachConfig: {
+            channel: selectedChannel,
+            template: selectedTemplate,
+            timeRange: {
+                start: document.getElementById('reachStart').value,
+                end: document.getElementById('reachEnd').value
+            },
+            maxDailyPerUser: parseInt(document.getElementById('maxDaily').value),
+            retryCount: parseInt(document.getElementById('retryCount').value),
+            retryIntervalMinutes: parseInt(document.getElementById('retryInterval').value)
+        },
+        ticketConfig: {
+            enabled: document.getElementById('createTicket').checked,
+            scene: selectedScene,
+            priority: parseInt(document.getElementById('ticketPriority').value),
+            assignRule: document.getElementById('ticketAssign').value,
+            timeoutHours: parseInt(document.getElementById('ticketTimeout').value),
+            linkReachRecord: document.getElementById('linkRecord').checked
+        }
+    };
+    return config;
+}
+
+function renderPreview() {
+    const c = collectConfig();
+    const dataSourceNames = { user: '用户数据', device: '设备数据', entitlement: '权益数据' };
+    const operatorNames = {
+        before_days: '距今超过(天)', equals: '等于', not_equals: '不等于',
+        greater: '大于', less: '小于', contains: '包含', is_empty: '为空'
+    };
+
+    let rulesHtml = c.filterRules.conditions.map((r, i) => {
+        const prefix = i > 0 ? `<span class="tag tag-blue" style="margin-right:6px;">${c.filterRules.logic}</span>` : '';
+        return `${prefix}${dataSourceNames[r.dataSource] || r.dataSource}.${r.field} ${operatorNames[r.operator] || r.operator} ${r.value}`;
+    }).join('<br>');
+
+    let html = `
+        <div class="preview-section">
+            <div class="preview-title">基础信息</div>
+            <div class="preview-item"><span class="preview-label">配置名称</span><span class="preview-value">${c.basicInfo.name}</span></div>
+            <div class="preview-item"><span class="preview-label">配置描述</span><span class="preview-value">${c.basicInfo.description}</span></div>
+            <div class="preview-item"><span class="preview-label">生效时间</span><span class="preview-value">${c.basicInfo.startDate} ~ ${c.basicInfo.endDate}</span></div>
+            <div class="preview-item"><span class="preview-label">状态</span><span class="preview-value">${c.basicInfo.status === 'enabled' ? '<span class="tag tag-green">启用</span>' : '<span class="tag" style="background:#f3f4f6">停用</span>'}</span></div>
+        </div>
+        <div class="preview-section">
+            <div class="preview-title">筛选规则</div>
+            <div style="font-size:13px;line-height:2;">${rulesHtml}</div>
+        </div>
+        <div class="preview-section">
+            <div class="preview-title">生成设置</div>
+            <div class="preview-item"><span class="preview-label">生成数量上限</span><span class="preview-value">${c.generateSettings.maxCount.toLocaleString()}</span></div>
+            <div class="preview-item"><span class="preview-label">执行频率</span><span class="preview-value">${freqNames[c.generateSettings.execFrequency]} ${c.generateSettings.execTime}</span></div>
+            <div class="preview-item"><span class="preview-label">去重策略</span><span class="preview-value">${dedupNames[c.generateSettings.dedupDays]}内不重复</span></div>
+            <div class="preview-item"><span class="preview-label">优先级</span><span class="preview-value">${priorityNames[c.generateSettings.priority]}</span></div>
+            <div class="preview-item"><span class="preview-label">执行前审核</span><span class="preview-value">${c.generateSettings.needReview ? '是' : '否'}</span></div>
+        </div>
+        <div class="preview-section">
+            <div class="preview-title">触达配置</div>
+            <div class="preview-item"><span class="preview-label">触达渠道</span><span class="preview-value"><span class="tag tag-blue">${channelNames[c.reachConfig.channel]}</span></span></div>
+            <div class="preview-item"><span class="preview-label">触达模板</span><span class="preview-value">${templateNames[c.reachConfig.template]}</span></div>
+            <div class="preview-item"><span class="preview-label">触达时段</span><span class="preview-value">${c.reachConfig.timeRange.start} - ${c.reachConfig.timeRange.end}</span></div>
+            <div class="preview-item"><span class="preview-label">日最大触达</span><span class="preview-value">${c.reachConfig.maxDailyPerUser} 次/人/天</span></div>
+            <div class="preview-item"><span class="preview-label">失败重试</span><span class="preview-value">${c.reachConfig.retryCount}次，间隔${c.reachConfig.retryIntervalMinutes}分钟</span></div>
+        </div>
+    `;
+
+    if (c.ticketConfig.enabled) {
+        html += `
+            <div class="preview-section">
+                <div class="preview-title">工单配置</div>
+                <div class="preview-item"><span class="preview-label">工单场景</span><span class="preview-value">${sceneNames[c.ticketConfig.scene]}</span></div>
+                <div class="preview-item"><span class="preview-label">工单优先级</span><span class="preview-value">${priorityNames[c.ticketConfig.priority]}</span></div>
+                <div class="preview-item"><span class="preview-label">分配规则</span><span class="preview-value">${c.ticketConfig.assignRule === 'auto' ? '自动分配' : c.ticketConfig.assignRule === 'team' ? '指定团队' : '指定人员'}</span></div>
+                <div class="preview-item"><span class="preview-label">超时时间</span><span class="preview-value">${c.ticketConfig.timeoutHours} 小时</span></div>
+                <div class="preview-item"><span class="preview-label">关联触达记录</span><span class="preview-value">${c.ticketConfig.linkReachRecord ? '是' : '否'}</span></div>
+            </div>
+        `;
+    }
+
+    document.getElementById('previewContent').innerHTML = html;
+    document.getElementById('jsonPreview').textContent = JSON.stringify(c, null, 2);
+}
+
+function exportJSON() {
+    const config = collectConfig();
+    const blob = new Blob([JSON.stringify(config, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = (config.basicInfo.name || 'config') + '.json';
+    a.click();
+    URL.revokeObjectURL(url);
+    showToast('JSON 配置已导出', 'success');
+}
+
+function saveConfig() {
+    showToast('配置保存成功！', 'success');
+    setTimeout(() => showList(), 1500);
+}
+
+function showToast(msg, type) {
+    const toast = document.getElementById('toast');
+    toast.textContent = msg;
+    toast.className = 'toast' + (type === 'success' ? ' success' : '');
+    toast.classList.add('show');
+    setTimeout(() => toast.classList.remove('show'), 2500);
+}
+
+// Status toggle
+document.getElementById('configStatus').addEventListener('change', function() {
+    document.getElementById('statusLabel').textContent = this.checked ? '启用' : '停用';
+});
+</script>
+
+</body>
+</html>
