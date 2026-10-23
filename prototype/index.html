@@ -530,6 +530,158 @@
         .tag-green { background: #dcfce7; color: #166534; }
         .tag-orange { background: #fff7ed; color: #9a3412; }
 
+        /* Coupon selection */
+        .coupon-search {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 16px;
+        }
+
+        .coupon-search input {
+            flex: 1;
+        }
+
+        .coupon-category-tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+        }
+
+        .coupon-tab {
+            padding: 5px 14px;
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            font-size: 13px;
+            cursor: pointer;
+            background: var(--white);
+            color: var(--text-secondary);
+            transition: all 0.2s;
+        }
+
+        .coupon-tab:hover { border-color: var(--primary); color: var(--primary); }
+        .coupon-tab.active { background: var(--primary); color: white; border-color: var(--primary); }
+
+        .coupon-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin-bottom: 16px;
+            max-height: 380px;
+            overflow-y: auto;
+            padding-right: 4px;
+        }
+
+        .coupon-item {
+            border: 2px solid var(--border);
+            border-radius: var(--radius);
+            padding: 14px;
+            cursor: pointer;
+            transition: all 0.2s;
+            position: relative;
+            display: flex;
+            gap: 12px;
+        }
+
+        .coupon-item:hover { border-color: var(--primary); }
+
+        .coupon-item.selected {
+            border-color: var(--primary);
+            background: var(--primary-light);
+        }
+
+        .coupon-item.selected::after {
+            content: '\2713';
+            position: absolute;
+            top: 8px;
+            right: 10px;
+            width: 20px;
+            height: 20px;
+            background: var(--primary);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+        }
+
+        .coupon-icon-box {
+            width: 44px;
+            height: 44px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            flex-shrink: 0;
+        }
+
+        .coupon-info { flex: 1; min-width: 0; }
+
+        .coupon-name {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 3px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            padding-right: 20px;
+        }
+
+        .coupon-meta {
+            font-size: 12px;
+            color: var(--text-secondary);
+            line-height: 1.5;
+        }
+
+        .coupon-meta span {
+            display: inline-block;
+            margin-right: 10px;
+        }
+
+        .coupon-tag {
+            display: inline-block;
+            padding: 1px 6px;
+            border-radius: 3px;
+            font-size: 11px;
+            font-weight: 500;
+        }
+
+        .coupon-tag.video { background: #ede9fe; color: #6d28d9; }
+        .coupon-tag.flow { background: #dbeafe; color: #1d4ed8; }
+        .coupon-tag.money { background: #fef3c7; color: #b45309; }
+        .coupon-tag.member { background: #fce7f3; color: #be185d; }
+        .coupon-tag.other { background: #f3f4f6; color: #4b5563; }
+
+        .selected-coupons-bar {
+            background: var(--primary-light);
+            border: 1px solid #c7d2fe;
+            border-radius: 6px;
+            padding: 10px 14px;
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 16px;
+        }
+
+        .selected-coupons-bar .count { font-weight: 600; color: var(--primary); }
+        .selected-coupons-bar .clear-btn {
+            color: var(--primary);
+            cursor: pointer;
+            font-size: 12px;
+            border: none;
+            background: none;
+            text-decoration: underline;
+        }
+
+        .divider {
+            border: none;
+            border-top: 1px dashed var(--border);
+            margin: 20px 0;
+        }
+
         /* Ticket scene cards */
         .scene-grid {
             display: grid;
@@ -736,7 +888,7 @@
             <thead>
                 <tr>
                     <th>配置名称</th>
-                    <th>数据源</th>
+                    <th>目标权益</th>
                     <th>触达渠道</th>
                     <th>生成数量</th>
                     <th>执行频率</th>
@@ -747,7 +899,7 @@
             <tbody>
                 <tr>
                     <td><strong>权益未使用提醒-外呼</strong><br><span style="font-size:11px;color:#6b7280">权益发放超3天未使用自动外呼</span></td>
-                    <td><span class="tag tag-blue">权益数据</span></td>
+                    <td><span class="tag tag-blue" style="margin-bottom:2px;">爱奇艺黄金会员月卡</span></td>
                     <td>智能外呼</td>
                     <td>1,000</td>
                     <td>每天 09:00</td>
@@ -761,8 +913,8 @@
                     </td>
                 </tr>
                 <tr>
-                    <td><strong>套餐到期续约-短信</strong><br><span style="font-size:11px;color:#6b7280">套餐7天内到期用户短信提醒</span></td>
-                    <td><span class="tag tag-green">用户数据</span></td>
+                    <td><strong>流量包到期提醒-短信</strong><br><span style="font-size:11px;color:#6b7280">流量包7天内到期用户短信提醒</span></td>
+                    <td><span class="tag tag-blue" style="margin-bottom:2px;">5GB通用流量包</span><br><span class="tag tag-blue">10GB定向流量包</span></td>
                     <td>短信</td>
                     <td>2,000</td>
                     <td>每天 10:00</td>
@@ -776,8 +928,8 @@
                     </td>
                 </tr>
                 <tr>
-                    <td><strong>故障设备回访</strong><br><span style="font-size:11px;color:#6b7280">设备故障修复后24小时回访</span></td>
-                    <td><span class="tag tag-orange">设备数据</span></td>
+                    <td><strong>话费红包未领提醒</strong><br><span style="font-size:11px;color:#6b7280">话费红包发放后未使用回访</span></td>
+                    <td><span class="tag tag-blue" style="margin-bottom:2px;">10元话费红包</span><br><span class="tag tag-blue">5元话费优惠券</span></td>
                     <td>人工坐席</td>
                     <td>500</td>
                     <td>每天 14:00</td>
@@ -876,8 +1028,35 @@
                 数据筛选规则
             </div>
             <p style="font-size:13px;color:var(--text-secondary);margin-bottom:16px;">
-                配置运营包数据的筛选条件，系统将根据规则自动筛选符合条件的目标用户。
+                先选择要运营的权益（券），再配置附加筛选条件。不同的券可以创建不同的配置策略。
             </p>
+
+            <!-- Coupon Selection -->
+            <div class="form-group">
+                <label class="form-label">选择权益（券） <span class="required">*</span> <span class="hint">支持多选，可针对不同券分别建策略</span></label>
+                <div class="coupon-category-tabs" id="couponTabs">
+                    <span class="coupon-tab active" onclick="filterCoupons(this, 'all')">全部</span>
+                    <span class="coupon-tab" onclick="filterCoupons(this, 'video')">视频权益</span>
+                    <span class="coupon-tab" onclick="filterCoupons(this, 'flow')">流量权益</span>
+                    <span class="coupon-tab" onclick="filterCoupons(this, 'money')">话费/红包</span>
+                    <span class="coupon-tab" onclick="filterCoupons(this, 'member')">会员权益</span>
+                    <span class="coupon-tab" onclick="filterCoupons(this, 'other')">其他</span>
+                </div>
+                <div class="coupon-search">
+                    <input type="text" id="couponSearch" placeholder="搜索券名称、券ID..." oninput="searchCoupons()">
+                </div>
+                <div class="selected-coupons-bar" id="selectedBar" style="display:none;">
+                    <span>已选择 <span class="count" id="selectedCount">0</span> 项权益</span>
+                    <button class="clear-btn" onclick="clearCoupons()">清空选择</button>
+                </div>
+                <div class="coupon-grid" id="couponGrid"></div>
+            </div>
+
+            <hr class="divider">
+
+            <div class="form-group">
+                <label class="form-label" style="font-size:15px;font-weight:600;margin-bottom:12px;">附加筛选条件 <span class="hint" style="font-size:12px;font-weight:400;">在已选券的基础上，进一步筛选目标用户</span></label>
+            </div>
 
             <div class="form-group">
                 <label class="form-label">条件关系</label>
@@ -1280,6 +1459,25 @@ let selectedChannel = 'ai_call';
 let selectedTemplate = 'tpl_001';
 let selectedScene = 'activate';
 let filterLogic = 'AND';
+let selectedCouponIds = new Set(['CPN_VID_001']);
+let currentCouponCategory = 'all';
+
+const couponData = [
+    { id: 'CPN_VID_001', name: '爱奇艺黄金会员月卡', category: 'video', icon: '\u{1F3AC}', iconBg: '#ede9fe', tagClass: 'video', tagLabel: '视频权益', total: 52300, validDays: 30, desc: '爱奇艺黄金VIP会员权益，有效期30天' },
+    { id: 'CPN_VID_002', name: '优酷VIP会员周卡', category: 'video', icon: '\u{1F3AC}', iconBg: '#ede9fe', tagClass: 'video', tagLabel: '视频权益', total: 38100, validDays: 7, desc: '优酷VIP会员权益，有效期7天' },
+    { id: 'CPN_VID_003', name: '腾讯视频VIP月卡', category: 'video', icon: '\u{1F3AC}', iconBg: '#ede9fe', tagClass: 'video', tagLabel: '视频权益', total: 41200, validDays: 30, desc: '腾讯视频VIP会员，有效期30天' },
+    { id: 'CPN_VID_004', name: '芒果TV会员周卡', category: 'video', icon: '\u{1F3AC}', iconBg: '#ede9fe', tagClass: 'video', tagLabel: '视频权益', total: 15800, validDays: 7, desc: '芒果TV会员权益，有效期7天' },
+    { id: 'CPN_FLW_001', name: '5GB通用流量包', category: 'flow', icon: '\u{1F4F6}', iconBg: '#dbeafe', tagClass: 'flow', tagLabel: '流量权益', total: 89400, validDays: 30, desc: '5GB国内通用流量，当月有效' },
+    { id: 'CPN_FLW_002', name: '10GB定向流量包', category: 'flow', icon: '\u{1F4F6}', iconBg: '#dbeafe', tagClass: 'flow', tagLabel: '流量权益', total: 67200, validDays: 30, desc: '10GB定向APP流量，当月有效' },
+    { id: 'CPN_FLW_003', name: '1GB日流量包', category: 'flow', icon: '\u{1F4F6}', iconBg: '#dbeafe', tagClass: 'flow', tagLabel: '流量权益', total: 120500, validDays: 1, desc: '1GB国内流量，当日有效' },
+    { id: 'CPN_MON_001', name: '10元话费红包', category: 'money', icon: '\u{1F9E7}', iconBg: '#fef3c7', tagClass: 'money', tagLabel: '话费红包', total: 31600, validDays: 90, desc: '10元话费直充红包，90天内有效' },
+    { id: 'CPN_MON_002', name: '5元话费优惠券', category: 'money', icon: '\u{1F9E7}', iconBg: '#fef3c7', tagClass: 'money', tagLabel: '话费红包', total: 45800, validDays: 60, desc: '充值满50减5元优惠券' },
+    { id: 'CPN_MON_003', name: '20元购机抵扣券', category: 'money', icon: '\u{1F9E7}', iconBg: '#fef3c7', tagClass: 'money', tagLabel: '话费红包', total: 12300, validDays: 180, desc: '购机满500减20元抵扣券' },
+    { id: 'CPN_MEM_001', name: '云盘会员月卡', category: 'member', icon: '\u{1F451}', iconBg: '#fce7f3', tagClass: 'member', tagLabel: '会员权益', total: 28900, validDays: 30, desc: '云盘超级会员，1TB空间+极速下载' },
+    { id: 'CPN_MEM_002', name: '音乐VIP月卡', category: 'member', icon: '\u{1F451}', iconBg: '#fce7f3', tagClass: 'member', tagLabel: '会员权益', total: 35700, validDays: 30, desc: '音乐平台VIP会员，畅听无损音质' },
+    { id: 'CPN_OTH_001', name: '免费体检权益', category: 'other', icon: '\u{1F381}', iconBg: '#f3f4f6', tagClass: 'other', tagLabel: '其他', total: 8600, validDays: 365, desc: '合作医院年度免费体检一次' },
+    { id: 'CPN_OTH_002', name: '机场贵宾厅体验券', category: 'other', icon: '\u{1F381}', iconBg: '#f3f4f6', tagClass: 'other', tagLabel: '其他', total: 5200, validDays: 180, desc: '国内机场贵宾厅单次体验' },
+];
 
 const channelNames = {
     ai_call: '智能外呼', sms: '短信', app_push: 'APP推送',
@@ -1299,6 +1497,71 @@ const dedupNames = {
     '0': '不去重', '1': '1天', '3': '3天',
     '7': '7天', '14': '14天', '30': '30天'
 };
+
+function renderCoupons() {
+    const searchText = (document.getElementById('couponSearch').value || '').toLowerCase();
+    const grid = document.getElementById('couponGrid');
+    const filtered = couponData.filter(c => {
+        if (currentCouponCategory !== 'all' && c.category !== currentCouponCategory) return false;
+        if (searchText && !c.name.toLowerCase().includes(searchText) && !c.id.toLowerCase().includes(searchText)) return false;
+        return true;
+    });
+
+    grid.innerHTML = filtered.map(c => `
+        <div class="coupon-item ${selectedCouponIds.has(c.id) ? 'selected' : ''}" onclick="toggleCoupon('${c.id}')">
+            <div class="coupon-icon-box" style="background:${c.iconBg}">${c.icon}</div>
+            <div class="coupon-info">
+                <div class="coupon-name">${c.name}</div>
+                <div class="coupon-meta">
+                    <span class="coupon-tag ${c.tagClass}">${c.tagLabel}</span>
+                    <span>ID: ${c.id}</span>
+                </div>
+                <div class="coupon-meta">
+                    <span>已发放: ${c.total.toLocaleString()}张</span>
+                    <span>有效期: ${c.validDays}天</span>
+                </div>
+            </div>
+        </div>
+    `).join('');
+
+    updateSelectedBar();
+}
+
+function toggleCoupon(id) {
+    if (selectedCouponIds.has(id)) {
+        selectedCouponIds.delete(id);
+    } else {
+        selectedCouponIds.add(id);
+    }
+    renderCoupons();
+}
+
+function clearCoupons() {
+    selectedCouponIds.clear();
+    renderCoupons();
+}
+
+function updateSelectedBar() {
+    const bar = document.getElementById('selectedBar');
+    const count = selectedCouponIds.size;
+    if (count > 0) {
+        bar.style.display = 'flex';
+        document.getElementById('selectedCount').textContent = count;
+    } else {
+        bar.style.display = 'none';
+    }
+}
+
+function filterCoupons(tab, category) {
+    currentCouponCategory = category;
+    document.querySelectorAll('.coupon-tab').forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+    renderCoupons();
+}
+
+function searchCoupons() {
+    renderCoupons();
+}
 
 function showList() {
     document.getElementById('listView').style.display = '';
@@ -1322,6 +1585,10 @@ function goToStep(step) {
 }
 
 function nextStep() {
+    if (currentStep === 2 && selectedCouponIds.size === 0) {
+        showToast('请至少选择一项权益（券）');
+        return;
+    }
     if (currentStep < totalSteps) {
         currentStep++;
         updateStepper();
@@ -1442,6 +1709,10 @@ function collectConfig() {
         });
     });
 
+    const selectedCoupons = couponData
+        .filter(c => selectedCouponIds.has(c.id))
+        .map(c => ({ id: c.id, name: c.name, category: c.category }));
+
     const config = {
         basicInfo: {
             name: document.getElementById('configName').value,
@@ -1450,6 +1721,7 @@ function collectConfig() {
             endDate: document.getElementById('endDate').value,
             status: document.getElementById('configStatus').checked ? 'enabled' : 'disabled'
         },
+        targetEntitlements: selectedCoupons,
         filterRules: {
             logic: filterLogic,
             conditions: rules
@@ -1492,6 +1764,11 @@ function renderPreview() {
         before_days: '距今超过(天)', equals: '等于', not_equals: '不等于',
         greater: '大于', less: '小于', contains: '包含', is_empty: '为空'
     };
+    const categoryNames = { video: '视频权益', flow: '流量权益', money: '话费/红包', member: '会员权益', other: '其他' };
+
+    let couponsHtml = c.targetEntitlements.map(cp =>
+        `<span class="tag tag-blue" style="margin-right:6px;margin-bottom:4px;">${cp.name}</span>`
+    ).join('');
 
     let rulesHtml = c.filterRules.conditions.map((r, i) => {
         const prefix = i > 0 ? `<span class="tag tag-blue" style="margin-right:6px;">${c.filterRules.logic}</span>` : '';
@@ -1507,7 +1784,11 @@ function renderPreview() {
             <div class="preview-item"><span class="preview-label">状态</span><span class="preview-value">${c.basicInfo.status === 'enabled' ? '<span class="tag tag-green">启用</span>' : '<span class="tag" style="background:#f3f4f6">停用</span>'}</span></div>
         </div>
         <div class="preview-section">
-            <div class="preview-title">筛选规则</div>
+            <div class="preview-title">目标权益（券）</div>
+            <div style="font-size:13px;line-height:2;">${couponsHtml || '<span style="color:#999">未选择</span>'}</div>
+        </div>
+        <div class="preview-section">
+            <div class="preview-title">附加筛选规则</div>
             <div style="font-size:13px;line-height:2;">${rulesHtml}</div>
         </div>
         <div class="preview-section">
@@ -1570,10 +1851,11 @@ function showToast(msg, type) {
     setTimeout(() => toast.classList.remove('show'), 2500);
 }
 
-// Status toggle
 document.getElementById('configStatus').addEventListener('change', function() {
     document.getElementById('statusLabel').textContent = this.checked ? '启用' : '停用';
 });
+
+renderCoupons();
 </script>
 
 </body>
